@@ -1,0 +1,57 @@
+//protoc -I rpc/ rpc/p2p.proto --go_out=plugins=grpc:rpc/
+syntax = "proto3";
+package rpc;
+
+
+service FileService {
+  rpc RemoteList (ListRequest) returns (ListReply) {};
+  rpc RemoteDownload (DownloadRequest) returns (DownloadReply) {};
+  rpc RemoteFragmentsAvailable (FragmentRequest) returns (FragmentReply) {};
+}
+
+// The request message containing the user's name.
+message ListRequest {
+    bool fullDetails = 1;
+}
+
+message ListReply {
+  repeated MetaData files = 1;
+}
+
+enum Status {
+  NEW = 0;
+  PAUSED = 1;
+  DOWNLOADING = 2;
+  FINISHED = 3;
+}
+
+message MetaData {
+  string Name = 1;
+  string Publisher = 2;
+  string Hash = 3; 
+  int64 Size = 4;
+  bool Downloadable = 5;
+  int32 FragmentCount = 6;
+  repeated int32 AvailableFragments = 7;
+  Status Status = 8;
+}
+
+
+message DownloadRequest {
+    string FileHash = 1;
+    uint32 RequestedFragment = 2;
+}
+
+message DownloadReply {
+    uint32 FragmentID = 1 ;
+    bytes Data = 2;
+}
+
+message FragmentRequest {
+  string FileHash = 1;
+}
+
+message FragmentReply {
+  bool Exists = 1;
+  repeated int32 AvailableFragments = 2;
+}
